@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenResty
+After=network.target
+
+[Service]
+Type=forking
+PIDFile={{ openresty_pid_file }}
+ExecStartPre={{ openresty_install_prefix }}/bin/openresty -t
+ExecStart={{ openresty_install_prefix }}/bin/openresty
+ExecReload={{ openresty_install_prefix }}/bin/openresty -s reload
+ExecStop=/bin/kill -s QUIT $MAINPID
+TimeoutStopSec=5
+KillMode=mixed
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

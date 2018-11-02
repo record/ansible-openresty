@@ -1,0 +1,25 @@
+---
+# defaults file for openresty
+openresty_version: '1.13.6.2'
+openresty_tarball_url: 'https://openresty.org/download/openresty-{{ openresty_version }}.tar.gz'
+openresty_tarball: '/tmp/openresty-{{ openresty_version }}.tar.gz'
+
+openresty_install_prefix: /usr/local/openresty
+openresty_build_wipe_first: false
+openresty_build_dir_root: /usr/local/src/openresty
+openresty_build_dir: '{{ openresty_build_dir_root }}/openresty-{{ openresty_version }}'
+
+openresty_system_packages:
+- build-essential
+- libpcre3-dev
+- libssl-dev
+openresty_extra_modules: []
+
+openresty_conf_dir: '{{ openresty_install_prefix }}/nginx/conf'
+openresty_conf_main: '{{ role_path }}/templates/nginx.conf.j2'
+openresty_confs: []
+
+openresty_user: www-data
+openresty_pid_file: /var/run/openresty.pid
+
+openresty_systemd_unit_file: '{{ role_path }}/templates/openresty.service.j2'

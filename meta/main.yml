@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: Lin, Yi-Li
+  description: OpneResty
+  license: MIT
+  min_ansible_version: 1.9
+  platforms:
+  - name: Ubuntu
+    versions:
+    - xenial
+  galaxy_tags:
+  - openresty
+  - nginx
+dependencies: []

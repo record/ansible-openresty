@@ -1,0 +1,100 @@
+---
+# tasks file for openresty
+- name: OpenResty | Install Build Requiremenmts
+  apt:
+    name: '{{ openresty_system_packages }}'
+    state: present
+    update_cache: yes
+  when: openresty_system_packages
+  become: yes
+
+- name: OpenResty | Download
+  get_url:
+    url: '{{ openresty_tarball_url }}'
+    dest: '{{ openresty_tarball }}'
+    mode: '0644'
+
+- name: OpenResty | Wipe Build Dir
+  file:
+    path: '{{ openresty_build_dir }}'
+    stete: absent
+  when: openresty_build_wipe_first
+  become: yes
+
+- name: OpenResty | Create Build Dir
+  file:
+    path: '{{ openresty_build_dir }}'
+    state: directory
+  become: yes
+
+- name: OpenResty | Extract
+  unarchive:
+    src: '{{ openresty_tarball }}'
+    dest: '{{ openresty_build_dir_root }}'
+    copy: no
+  become: yes
+
+- name: OpenResty | Configure
+  command: >-
+    ./configure
+    "--prefix={{ openresty_install_prefix }}"
+    {% for module in openresty_extra_modules %} "--with-{{ module }}"{% endfor %}
+  args:
+    chdir: '{{ openresty_build_dir }}'
+  become: yes
+
+- name: OpenResty | Build
+  command: make
+  args:
+    chdir: '{{ openresty_build_dir }}'
+  become: yes
+
+- name: OpenResty | Install
+  command: make install
+  args:
+    chdir: '{{ openresty_build_dir }}'
+  become: yes
+
+- name: OpenResty | Install Main Config
+  template:
+    src: '{{ openresty_conf_main }}'
+    dest: '{{ openresty_conf_dir }}/nginx.conf'
+  become: yes
+
+- name: OpenResry | Create Other Configs Dir
+  file:
+    path: '{{ openresty_conf_dir }}/conf.d'
+    state: directory
+  when: openresty_confs
+  become: yes
+
+- name: OpenResry | Drop Other Configs Dir
+  file:
+    path: '{{ openresty_conf_dir }}/conf.d'
+    state: absent
+  when: not openresty_confs
+  become: yes
+
+- name: OpenResry | Install Other Configs
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ openresty_conf_dir }}/conf.d/{{ item.dest }}'
+  with_items: openresty_confs
+  become: yes
+
+- name: OpenResry | Install Systemd Unit File
+  template:
+    src: '{{ openresty_systemd_unit_file }}'
+    dest: /lib/systemd/system/openresty.service
+  become: yes
+
+- name: OpenResry | Update Systemd Setting
+  command: systemctl daemon-reload
+  become: yes
+  notify:
+  - reload or restart openresty
+
+- name: OpenResty | Cleanup
+  file:
+    path: '{{ openresty_tarball }}'
+    state: absent

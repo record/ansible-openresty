@@ -1,0 +1,26 @@
+- hosts: all
+  gather_facts: false
+
+  vars_files:
+  - 'defaults/main.yml'
+
+  pre_tasks:
+  - name: Install Python 2 for Ansible
+    raw: bash -c "test -x /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+    become: yes
+
+  - name: Gathering Facts
+    setup:
+
+  - name: Set Vars
+    set_fact:
+      role_path: '{{ playbook_dir }}'
+      openresty_confs:
+      - src: tests/test.conf.j2
+        dest: test.conf
+
+  tasks:
+  - include: 'tasks/main.yml'
+
+  handlers:
+  - include: 'handlers/main.yml'

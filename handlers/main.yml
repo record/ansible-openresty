@@ -1,0 +1,9 @@
+---
+# handlers file for openresty
+- name: reload or restart openresty
+  command: systemctl reload-or-restart openresty.service
+  become: yes
+
+- name: restart openresty
+  command: systemctl restart openresty.service
+  become: yes
