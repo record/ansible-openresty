@@ -91,6 +91,10 @@
 - name: OpenResry | Update Systemd Setting
   command: systemctl daemon-reload
   become: yes
+
+- name: OpenResry | Enable Systemd Unit File
+  command: systemctl enable openresty.service
+  become: yes
   notify:
   - reload or restart openresty
 
